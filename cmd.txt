@@ -7,3 +7,5 @@ apt-get install libsox-fmt-all
 apt-get install sox
 pip install sox
 pip install audtorch
+pip install nvidia-pyindex
+pip install nvidia-dali-cuda110
