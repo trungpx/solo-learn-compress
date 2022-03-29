@@ -5,6 +5,7 @@ runs/
 wandb/
 wandb*/
 
+backup/
 code/
 checkpoint/
 *stochastic.py
