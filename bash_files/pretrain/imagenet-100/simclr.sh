@@ -1,10 +1,10 @@
 python3 ../../../main_pretrain.py \
     --dataset imagenet100 \
     --backbone resnet18 \
-    --data_dir /datasets \
+    --data_dir ~/workspace/datasets/ \
     --train_dir imagenet-100/train \
     --val_dir imagenet-100/val \
-    --max_epochs 400 \
+    --max_epochs 200 \
     --gpus 0,1 \
     --accelerator gpu \
     --strategy ddp \
@@ -25,12 +25,13 @@ python3 ../../../main_pretrain.py \
     --saturation 0.8 \
     --hue 0.2 \
     --num_crops_per_aug 2 \
-    --name simclr-400ep-imagenet100 \
+    --name simclr_res18 \
     --wandb \
     --dali \
-    --project solo-learn \
-    --entity unitn-mhug \
+    --project Imagenet100-200ep \
+    --entity kaistaim2 \
     --save_checkpoint \
     --method simclr \
     --temperature 0.2 \
-    --proj_hidden_dim 2048
+    --proj_hidden_dim 2048 \
+    --knn_eval \

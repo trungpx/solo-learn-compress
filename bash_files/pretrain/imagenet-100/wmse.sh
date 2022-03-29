@@ -1,10 +1,10 @@
 python3 ../../../main_pretrain.py \
     --dataset imagenet100 \
     --backbone resnet18 \
-    --data_dir /datasets \
+    --data_dir ~/workspace/datasets/ \
     --train_dir imagenet-100/train \
     --val_dir imagenet-100/test \
-    --max_epochs 400 \
+    --max_epochs 200 \
     --precision 16 \
     --gpus 0,1 \
     --accelerator gpu \
@@ -28,9 +28,10 @@ python3 ../../../main_pretrain.py \
     --dali \
     --wandb \
     --save_checkpoint \
-    --name wmse-imagenet100 \
-    --project solo-learn \
-    --entity unitn-mhug \
+    --name wmse_res18 \
+    --project Imagenet100-200ep \
+    --entity kaistaim2 \
     --method wmse \
     --proj_output_dim 64 \
-    --whitening_size 128
+    --whitening_size 128 \
+    --knn_eval \

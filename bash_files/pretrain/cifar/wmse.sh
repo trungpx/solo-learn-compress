@@ -1,8 +1,8 @@
 python3 ../../../main_pretrain.py \
-    --dataset $1 \
+    --dataset cifar100 \
     --backbone resnet18 \
-    --data_dir ./datasets \
-    --max_epochs 1000 \
+    --data_dir ~/workspace/datasets/ \
+    --max_epochs 200 \
     --gpus 0 \
     --accelerator gpu \
     --precision 16 \
@@ -24,11 +24,12 @@ python3 ../../../main_pretrain.py \
     --crop_size 32 \
     --num_crops_per_aug 1 1 \
     --min_scale 0.2 \
-    --name wmse-$1 \
+    --name wmse_res18 \
+    --project CIFAR100-200ep \
+    --entity kaistaim2 \
     --wandb \
     --save_checkpoint \
-    --project solo-learn \
-    --entity unitn-mhug \
     --method wmse \
     --proj_output_dim 64 \
-    --whitening_size 128
+    --whitening_size 128 \
+    --knn_eval \

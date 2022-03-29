@@ -1,10 +1,10 @@
 python3 ../../../main_pretrain.py \
     --dataset imagenet100 \
     --backbone resnet18 \
-    --data_dir /datasets \
+    --data_dir ~/workspace/datasets/ \
     --train_dir imagenet-100/train \
     --val_dir imagenet-100/val \
-    --max_epochs 400 \
+    --max_epochs 200 \
     --gpus 0,1 \
     --accelerator gpu \
     --strategy ddp \
@@ -23,9 +23,9 @@ python3 ../../../main_pretrain.py \
     --saturation 0.4 \
     --hue 0.1 \
     --num_crops_per_aug 2 \
-    --name mocov2plus-400ep \
-    --project solo-learn \
-    --entity unitn-mhug \
+    --name mocov2plus_res18 \
+    --project Imagenet100-200ep \
+    --entity kaistaim2 \
     --wandb \
     --save_checkpoint \
     --method mocov2plus \
@@ -34,4 +34,5 @@ python3 ../../../main_pretrain.py \
     --temperature 0.2 \
     --base_tau_momentum 0.99 \
     --final_tau_momentum 0.999 \
-    --momentum_classifier
+    --momentum_classifier \
+    --knn_eval \

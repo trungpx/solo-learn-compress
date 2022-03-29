@@ -1,7 +1,7 @@
 python3 main_pretrain.py \
     --dataset imagenet \
     --backbone resnet50 \
-    --data_dir /data/datasets \
+    --data_dir ~/workspace/datasets/ \
     --train_dir imagenet/train \
     --val_dir imagenet/val \
     --max_epochs 100 \
@@ -24,9 +24,9 @@ python3 main_pretrain.py \
     --gaussian_prob 1.0 0.1 \
     --solarization_prob 0.0 0.2 \
     --num_crops_per_aug 1 1 \
-    --name mocov2plus-resnet50-imagenet-100ep \
-    --project solo-learn \
-    --entity unitn-mhug \
+    --name mocov2plus_res50 \
+    --project Imagenet1K-100ep \
+    --entity kaistaim2 \
     --wandb \
     --save_checkpoint \
     --method mocov2plus \
@@ -36,4 +36,6 @@ python3 main_pretrain.py \
     --base_tau_momentum 0.99 \
     --final_tau_momentum 0.999 \
     --momentum_classifier \
-    --auto_resume
+    --auto_resume \
+    --keep_previous_checkpoints \
+    --checkpoint_frequency 5 \

@@ -1,10 +1,10 @@
 python3 ../../../main_pretrain.py \
     --dataset imagenet100 \
     --backbone resnet18 \
-    --data_dir /datasets \
+    --data_dir ~/workspace/datasets/ \
     --train_dir imagenet-100/train \
     --val_dir imagenet-100/val \
-    --max_epochs 400 \
+    --max_epochs 200 \
     --gpus 0,1 \
     --accelerator gpu \
     --strategy ddp \
@@ -23,13 +23,14 @@ python3 ../../../main_pretrain.py \
     --hue 0.1 \
     --num_crops_per_aug 2 \
     --zero_init_residual \
-    --name simsiam-400ep-imagenet100 \
+    --name simsiam_res18 \
     --dali \
-    --entity unitn-mhug \
-    --project solo-learn \
+    --entity kaistaim2 \
+    --project Imagenet100-200ep \
     --wandb \
     --save_checkpoint \
     --method simsiam \
     --proj_hidden_dim 2048 \
     --pred_hidden_dim 512 \
-    --proj_output_dim 2048
+    --proj_output_dim 2048 \
+    --knn_eval \

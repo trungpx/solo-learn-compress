@@ -1,10 +1,10 @@
 python3 ../../../main_pretrain.py \
     --dataset imagenet100 \
     --backbone resnet18 \
-    --data_dir /datasets \
+    --data_dir ~/workspace/datasets/ \
     --train_dir imagenet-100/train \
     --val_dir imagenet-100/val \
-    --max_epochs 400 \
+    --max_epochs 200 \
     --gpus 0,1 \
     --accelerator gpu \
     --strategy ddp \
@@ -31,12 +31,13 @@ python3 ../../../main_pretrain.py \
     --saturation 0.8 \
     --hue 0.2 \
     --num_crops_per_aug 2 \
-    --name deepclusterv2-400ep-imagenet100 \
-    --entity unitn-mhug \
-    --project solo-learn \
+    --name deepclusterv2_res18 \
+    --entity kaistaim2 \
+    --project Imagenet100-200ep \
     --wandb \
     --save_checkpoint \
     --method deepclusterv2 \
     --proj_hidden_dim 2048 \
     --proj_output_dim 128 \
-    --num_prototypes 3000 3000 3000
+    --num_prototypes 3000 3000 3000 \
+    --knn_eval \

@@ -1,9 +1,9 @@
 python3 ../../../main_pretrain.py \
     --dataset imagenet \
     --backbone resnet50 \
-    --data_dir /datasets \
-    --train_dir ILSVRC2012/train \
-    --val_dir ILSVRC2012/val \
+    --data_dir ~/workspace/datasets/ \
+    --train_dir imagenet/train \
+    --val_dir imagenet/val \
     --max_epochs 100 \
     --gpus 0,1 \
     --accelerator gpu \
@@ -29,9 +29,9 @@ python3 ../../../main_pretrain.py \
     --gaussian_prob 1.0 0.1 \
     --solarization_prob 0.0 0.2 \
     --num_crops_per_aug 1 1 \
-    --name byol-resnet50-imagenet-100ep \
-    --entity unitn-mhug \
-    --project solo-learn \
+    --name byol_res50 \
+    --entity kaistaim2 \
+    --project Imagenet1K-100ep \
     --wandb \
     --save_checkpoint \
     --method byol \
@@ -40,4 +40,7 @@ python3 ../../../main_pretrain.py \
     --pred_hidden_dim 4096 \
     --base_tau_momentum 0.99 \
     --final_tau_momentum 1.0 \
-    --momentum_classifier
+    --momentum_classifier \
+    --keep_previous_checkpoints \
+    --checkpoint_frequency 5 \
+

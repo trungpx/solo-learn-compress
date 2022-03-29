@@ -1,7 +1,7 @@
 python3 ../../../main_pretrain.py \
     --dataset imagenet \
     --backbone resnet50 \
-    --data_dir /data/datasets \
+    --data_dir ~/workspace/datasets/ \
     --train_dir imagenet/train \
     --val_dir imagenet/val \
     --max_epochs 100 \
@@ -26,9 +26,9 @@ python3 ../../../main_pretrain.py \
     --gaussian_prob 1.0 0.1 \
     --solarization_prob 0.0 0.2 \
     --num_crops_per_aug 1 1 \
-    --name barlow-resnet50-imagenet-100ep \
-    --entity unitn-mhug \
-    --project solo-learn \
+    --name barlow_res50 \
+    --entity kaistaim2 \
+    --project Imagenet1K-100ep \
     --wandb \
     --save_checkpoint \
     --lamb 0.0051 \
@@ -36,4 +36,6 @@ python3 ../../../main_pretrain.py \
     --method barlow_twins \
     --proj_hidden_dim 4096 \
     --proj_output_dim 4096 \
-    --auto_resume
+    --auto_resume \
+    --keep_previous_checkpoints \
+    --checkpoint_frequency 5 \
