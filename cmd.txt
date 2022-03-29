@@ -1,0 +1,9 @@
+pip install torch==1.10.0+cu111 torchvision torchaudio -f https://download.pytorch.org/whl/torch_stable.html
+apt-get update
+apt-get install ffmpeg libsm6 libxext6 -y
+apt-get update
+apt-get install libsndfile1-dev -y
+apt-get install libsox-fmt-all
+apt-get install sox
+pip install sox
+pip install audtorch
