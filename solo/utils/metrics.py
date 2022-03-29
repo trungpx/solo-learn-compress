@@ -20,6 +20,8 @@
 from typing import Dict, List, Sequence
 
 import torch
+from audtorch.metrics.functional import pearsonr
+import numpy as np
 
 
 def accuracy_at_k(
@@ -71,3 +73,10 @@ def weighted_mean(outputs: List[Dict], key: str, batch_size_key: str) -> float:
         n += out[batch_size_key]
     value = value / n
     return value.squeeze(0)
+
+def corrcoef(z1, z2):
+    corr = np.corrcoef(z1.detach().cpu(), z2.detach().cpu())
+    return torch.from_numpy(corr).to(z1.device)
+
+def pearsonr_cor(x,y):
+    return pearsonr(x,y)

@@ -26,6 +26,8 @@ import torch.nn.functional as F
 from solo.losses.nnclr import nnclr_loss_func
 from solo.methods.base import BaseMethod
 from solo.utils.misc import gather
+from solo.utils.metrics import corrcoef, pearsonr_cor
+import ipdb
 
 
 class NNCLR(BaseMethod):

@@ -24,6 +24,9 @@ import torch
 import torch.nn as nn
 from solo.losses.barlow import barlow_loss_func
 from solo.methods.base import BaseMethod
+from solo.utils.metrics import corrcoef, pearsonr_cor
+import ipdb
+import torch.nn.functional as F
 
 
 class BarlowTwins(BaseMethod):
@@ -118,5 +121,45 @@ class BarlowTwins(BaseMethod):
         barlow_loss = barlow_loss_func(z1, z2, lamb=self.lamb, scale_loss=self.scale_loss)
 
         self.log("train_barlow_loss", barlow_loss, on_epoch=True, sync_dist=True)
+
+        with torch.no_grad():
+            z_std = F.normalize(torch.stack((z1,z2)), dim=-1).std(dim=1).mean()
+            corr_z = (torch.abs(corrcoef(z1, z2).triu(1)) + torch.abs(corrcoef(z1, z2).tril(-1))).mean()
+            pear_z = pearsonr_cor(z1, z2).mean()
+            corr_feats = (torch.abs(corrcoef(feats1, feats2).triu(1)) + torch.abs(corrcoef(feats1, feats2).tril(-1)) ).mean()
+            pear_feats = pearsonr_cor(feats1, feats2).mean()
+
+        ### new metrics
+        metrics = {
+            "Logits/avg_sum_logits_Z": (torch.stack((z1,z2))).sum(-1).mean(),
+            "Logits/avg_sum_logits_Z_normalized": F.normalize(torch.stack((z1,z2)), dim=-1).sum(-1).mean(),
+
+            "Logits/logits_Z_max": (torch.stack((z1,z2))).max(),
+            "Logits/logits_Z_min": (torch.stack((z1,z2))).min(),
+
+            "Logits/var_Z": (torch.stack((z1,z2))).var(-1).mean(),
+
+            "Logits/logits_Z_normalized_max": F.normalize(torch.stack((z1,z2)), dim=-1).max(),
+            "Logits/logits_Z_normalized_min": F.normalize(torch.stack((z1,z2)), dim=-1).min(),
+
+            "MeanVector/mean_vector_Z_max": (torch.stack((z1,z2))).mean(1).max(),
+            "MeanVector/mean_vector_Z_min": (torch.stack((z1,z2))).mean(1).min(),
+            "MeanVector/mean_vector_Z_normalized_max": F.normalize(torch.stack((z1,z2)), dim=-1).mean(1).max(),
+            "MeanVector/mean_vector_Z_normalized_min": F.normalize(torch.stack((z1,z2)), dim=-1).mean(1).min(),
+
+            "MeanVector/norm_vector_Z": (torch.stack((z1,z2))).mean(1).mean(0).norm(),
+            "MeanVector/norm_vector_Z_normalized": F.normalize(torch.stack((z1,z2)), dim=-1).mean(1).mean(0).norm(),
+
+            "Backbone/var": (torch.stack((feats1,feats2))).var(-1).mean(),
+            "Backbone/max": (torch.stack((feats1,feats2))).max(),
+
+            "train_z_std": z_std,
+            "Corr/corr_z": corr_z,
+            "Corr/pear_z": pear_z,
+            "Corr/corr_feats": corr_feats,
+            "Corr/pear_feats": pear_feats,
+        }
+        self.log_dict(metrics, on_epoch=True, sync_dist=True)
+        ### new metrics
 
         return barlow_loss + class_loss

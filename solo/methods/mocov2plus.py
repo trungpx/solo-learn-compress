@@ -27,6 +27,8 @@ from solo.losses.moco import moco_loss_func
 from solo.methods.base import BaseMomentumMethod
 from solo.utils.momentum import initialize_momentum_params
 from solo.utils.misc import gather
+from solo.utils.metrics import corrcoef, pearsonr_cor
+import ipdb
 
 
 class MoCoV2Plus(BaseMomentumMethod):
@@ -165,16 +167,16 @@ class MoCoV2Plus(BaseMomentumMethod):
         feats1, feats2 = out["feats"]
         momentum_feats1, momentum_feats2 = out["momentum_feats"]
 
-        q1 = self.projector(feats1)
-        q2 = self.projector(feats2)
-        q1 = F.normalize(q1, dim=-1)
-        q2 = F.normalize(q2, dim=-1)
+        q1_ori = self.projector(feats1)
+        q2_ori = self.projector(feats2)
+        q1 = F.normalize(q1_ori, dim=-1)
+        q2 = F.normalize(q2_ori, dim=-1)
 
         with torch.no_grad():
-            k1 = self.momentum_projector(momentum_feats1)
-            k2 = self.momentum_projector(momentum_feats2)
-            k1 = F.normalize(k1, dim=-1)
-            k2 = F.normalize(k2, dim=-1)
+            k1_ori = self.momentum_projector(momentum_feats1)
+            k2_ori = self.momentum_projector(momentum_feats2)
+            k1 = F.normalize(k1_ori, dim=-1)
+            k2 = F.normalize(k2_ori, dim=-1)
 
         # ------- contrastive loss -------
         # symmetric
@@ -189,5 +191,58 @@ class MoCoV2Plus(BaseMomentumMethod):
         self._dequeue_and_enqueue(keys)
 
         self.log("train_nce_loss", nce_loss, on_epoch=True, sync_dist=True)
+
+        with torch.no_grad():
+            z_std = F.normalize(torch.stack((q1_ori,q2_ori)), dim=-1).std(dim=1).mean()
+            corr_z = (torch.abs(corrcoef(q1_ori, q2_ori).triu(1)) + torch.abs(corrcoef(q1_ori, q2_ori).tril(-1))).mean()
+            pear_z = pearsonr_cor(q1_ori, q2_ori).mean()
+            corr_feats = (torch.abs(corrcoef(feats1, feats2).triu(1)) + torch.abs(corrcoef(feats1, feats2).tril(-1)) ).mean()
+            pear_feats = pearsonr_cor(feats1, feats2).mean()
+
+        ### new metrics
+        metrics = {
+            "Logits/avg_sum_logits_P": (torch.stack((q1_ori,q2_ori))).sum(-1).mean(),
+            "Logits/avg_sum_logits_P_normalized": F.normalize(torch.stack((q1_ori,q2_ori)), dim=-1).sum(-1).mean(),
+            "Logits/avg_sum_logits_Z": (torch.stack((k1_ori,k2_ori))).sum(-1).mean(),
+            "Logits/avg_sum_logits_Z_normalized": F.normalize(torch.stack((k1_ori,k2_ori)), dim=-1).sum(-1).mean(),
+            "Logits/logits_P_max": (torch.stack((q1_ori,q2_ori))).max(),
+            "Logits/logits_P_min": (torch.stack((q1_ori,q2_ori))).min(),
+            "Logits/logits_Z_max": (torch.stack((k1_ori,k2_ori))).max(),
+            "Logits/logits_Z_min": (torch.stack((k1_ori,k2_ori))).min(),
+
+            "Logits/logits_P_normalized_max": F.normalize(torch.stack((q1_ori,q2_ori)), dim=-1).max(),
+            "Logits/logits_P_normalized_min": F.normalize(torch.stack((q1_ori,q2_ori)), dim=-1).min(),
+            "Logits/logits_Z_normalized_max": F.normalize(torch.stack((k1_ori,k2_ori)), dim=-1).max(),
+            "Logits/logits_Z_normalized_min": F.normalize(torch.stack((k1_ori,k2_ori)), dim=-1).min(),
+
+            "MeanVector/mean_vector_P_max": (torch.stack((q1_ori,q2_ori))).mean(1).max(),
+            "MeanVector/mean_vector_P_min": (torch.stack((q1_ori,q2_ori))).mean(1).min(),
+            "MeanVector/mean_vector_P_normalized_max": F.normalize(torch.stack((q1_ori,q2_ori)), dim=-1).mean(1).max(),
+            "MeanVector/mean_vector_P_normalized_min": F.normalize(torch.stack((q1_ori,q2_ori)), dim=-1).mean(1).min(),
+
+            "MeanVector/mean_vector_Z_max": (torch.stack((k1_ori,k2_ori))).mean(1).max(),
+            "MeanVector/mean_vector_Z_min": (torch.stack((k1_ori,k2_ori))).mean(1).min(),
+            "MeanVector/mean_vector_Z_normalized_max": F.normalize(torch.stack((k1_ori,k2_ori)), dim=-1).mean(1).max(),
+            "MeanVector/mean_vector_Z_normalized_min": F.normalize(torch.stack((k1_ori,k2_ori)), dim=-1).mean(1).min(),
+
+            "MeanVector/norm_vector_P": (torch.stack((q1_ori,q2_ori))).mean(1).mean(0).norm(),
+            "MeanVector/norm_vector_P_normalized": F.normalize(torch.stack((q1_ori,q2_ori)), dim=-1).mean(1).mean(0).norm(),
+            "MeanVector/norm_vector_Z": (torch.stack((k1_ori,k2_ori))).mean(1).mean(0).norm(),
+            "MeanVector/norm_vector_Z_normalized": F.normalize(torch.stack((k1_ori,k2_ori)), dim=-1).mean(1).mean(0).norm(),
+
+            "Logits/var_P": (torch.stack((q1_ori,q2_ori))).var(-1).mean(),
+            "Logits/var_Z": (torch.stack((q1_ori,q2_ori))).var(-1).mean(),
+
+            "Backbone/var": (torch.stack((feats1, feats2))).var(-1).mean(),
+            "Backbone/max": (torch.stack((feats1, feats2))).max(),
+
+            "train_z_std": z_std,
+            "Corr/corr_z": corr_z,
+            "Corr/pear_z": pear_z,
+            "Corr/corr_feats": corr_feats,
+            "Corr/pear_feats": pear_feats,
+        }
+        self.log_dict(metrics, on_epoch=True, sync_dist=True)
+        ### new metrics
 
         return nce_loss + class_loss

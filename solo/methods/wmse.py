@@ -24,6 +24,9 @@ import torch.nn as nn
 from solo.losses.wmse import wmse_loss_func
 from solo.methods.base import BaseMethod
 from solo.utils.whitening import Whitening2d
+from solo.utils.metrics import corrcoef, pearsonr_cor
+import ipdb
+import torch.nn.functional as F
 
 
 class WMSE(BaseMethod):

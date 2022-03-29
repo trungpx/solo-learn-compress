@@ -24,6 +24,9 @@ import torch
 import torch.nn as nn
 from solo.losses.simclr import simclr_loss_func
 from solo.methods.base import BaseMethod
+from solo.utils.metrics import corrcoef, pearsonr_cor
+import ipdb
+import torch.nn.functional as F
 
 
 class SupCon(BaseMethod):

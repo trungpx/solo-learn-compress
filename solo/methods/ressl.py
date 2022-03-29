@@ -27,6 +27,8 @@ from solo.losses.ressl import ressl_loss_func
 from solo.methods.base import BaseMomentumMethod
 from solo.utils.momentum import initialize_momentum_params
 from solo.utils.misc import gather
+from solo.utils.metrics import corrcoef, pearsonr_cor
+import ipdb
 
 
 class ReSSL(BaseMomentumMethod):

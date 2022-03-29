@@ -26,6 +26,8 @@ import torch.nn.functional as F
 from solo.losses.swav import swav_loss_func
 from solo.methods.base import BaseMethod
 from solo.utils.sinkhorn_knopp import SinkhornKnopp
+from solo.utils.metrics import corrcoef, pearsonr_cor
+import ipdb
 
 
 class SwAV(BaseMethod):

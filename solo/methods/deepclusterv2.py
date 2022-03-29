@@ -26,6 +26,8 @@ import torch.nn.functional as F
 from solo.losses.deepclusterv2 import deepclusterv2_loss_func
 from solo.methods.base import BaseMethod
 from solo.utils.kmeans import KMeans
+from solo.utils.metrics import corrcoef, pearsonr_cor
+import ipdb
 
 
 class DeepClusterV2(BaseMethod):

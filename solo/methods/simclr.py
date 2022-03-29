@@ -24,6 +24,9 @@ import torch
 import torch.nn as nn
 from solo.losses.simclr import simclr_loss_func
 from solo.methods.base import BaseMethod
+from solo.utils.metrics import corrcoef, pearsonr_cor
+import ipdb
+import torch.nn.functional as F
 
 
 class SimCLR(BaseMethod):
@@ -107,7 +110,9 @@ class SimCLR(BaseMethod):
 
         feats = out["feats"]
 
-        z = torch.cat([self.projector(f) for f in feats])
+        # z = torch.cat([self.projector(f) for f in feats])
+        Z = [self.projector(f) for f in feats]
+        z = torch.cat((Z))
 
         # ------- contrastive loss -------
         n_augs = self.num_large_crops + self.num_small_crops
@@ -120,5 +125,45 @@ class SimCLR(BaseMethod):
         )
 
         self.log("train_nce_loss", nce_loss, on_epoch=True, sync_dist=True)
+
+        ### new metrics
+        z1, z2 = Z[0], Z[1]
+        with torch.no_grad():
+            z_std = F.normalize(torch.stack((z1,z2)), dim=-1).std(dim=1).mean()
+            corr_z = (torch.abs(corrcoef(Z[0], Z[1]).triu(1)) + torch.abs(corrcoef(Z[0], Z[1]).tril(-1))).mean()
+            pear_z = pearsonr_cor(Z[0], Z[1]).mean()
+            corr_feats = (torch.abs(corrcoef(feats[0], feats[1]).triu(1)) + torch.abs(corrcoef(feats[0], feats[1]).tril(-1)) ).mean()
+            pear_feats = pearsonr_cor(feats[0], feats[1]).mean()
+
+        metrics = {
+            "Logits/avg_sum_logits_Z": (torch.stack((z1,z2))).sum(-1).mean(),
+            "Logits/avg_sum_logits_Z_normalized": F.normalize(torch.stack((z1,z2)), dim=-1).sum(-1).mean(),
+            "Logits/logits_Z_max": (torch.stack((z1,z2))).max(),
+            "Logits/logits_Z_min": (torch.stack((z1,z2))).min(),
+
+            "Logits/logits_Z_normalized_max": F.normalize(torch.stack((z1,z2)), dim=-1).max(),
+            "Logits/logits_Z_normalized_min": F.normalize(torch.stack((z1,z2)), dim=-1).min(),
+
+            "MeanVector/mean_vector_Z_max": (torch.stack((z1,z2))).mean(1).max(),
+            "MeanVector/mean_vector_Z_min": (torch.stack((z1,z2))).mean(1).min(),
+            "MeanVector/mean_vector_Z_normalized_max": F.normalize(torch.stack((z1,z2))).mean(1).max(),
+            "MeanVector/mean_vector_Z_normalized_min": F.normalize(torch.stack((z1,z2))).mean(1).min(),
+
+            "MeanVector/norm_vector_Z": (torch.stack((z1,z2))).mean(1).mean(0).norm(),
+            "MeanVector/norm_vector_Z_normalized": F.normalize(torch.stack((z1,z2))).mean(1).mean(0).norm(),
+
+            "Backbone/var": (torch.stack(out["feats"])).var(-1).mean(),
+            "Backbone/max": (torch.stack(out["feats"])).max(),
+            "Logits/var_Z": (torch.stack((z1,z2))).var(-1).mean(),
+
+            "train_z_std": z_std,
+            "Corr/corr_z": corr_z,
+            "Corr/pear_z": pear_z,
+            "Corr/corr_feats": corr_feats,
+            "Corr/pear_feats": pear_feats,
+
+        }
+        self.log_dict(metrics, on_epoch=True, sync_dist=True)
+        ### new metrics
 
         return nce_loss + class_loss

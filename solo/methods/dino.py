@@ -28,6 +28,8 @@ from solo.losses.dino import DINOLoss
 from solo.methods.base import BaseMomentumMethod
 from solo.utils.momentum import initialize_momentum_params
 from solo.utils.misc import trunc_normal_
+from solo.utils.metrics import corrcoef, pearsonr_cor
+import ipdb
 
 
 class DINOHead(nn.Module):
