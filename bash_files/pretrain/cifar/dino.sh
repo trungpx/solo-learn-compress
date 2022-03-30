@@ -35,7 +35,7 @@ python3 ../../main_pretrain.py \
     --proj_output_dim 256 \
     --proj_hidden_dim 2048 \
     --num_prototypes 4096 \
-    --base_tau_momentum 0.9995 \
+    --base_tau_momentum 0.99 \
     --final_tau_momentum 1.0 \
     --momentum_classifier \
     --knn_eval \
