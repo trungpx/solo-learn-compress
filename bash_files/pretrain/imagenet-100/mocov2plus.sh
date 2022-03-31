@@ -11,7 +11,7 @@ python3 ../../../main_pretrain.py \
     --sync_batchnorm \
     --precision 16 \
     --optimizer sgd \
-    --scheduler cosine \
+    --scheduler warmup_cosine \
     --lr 0.3 \
     --classifier_lr 0.3 \
     --weight_decay 1e-4 \
